@@ -1,9 +1,71 @@
 openapi: 3.0.3
 info:
-  title: $Title$
-  description: $Title$
-  version: 1.0.0
+  title: Currency exchange
+  version: "1.0"
+  contact:
+    name: Juan Marques
+    email: 1juanmarques@gmail.com
 servers:
-  - url: '$https$'
+  - url: http://localhost:8080
+    description: Inferred Url
+tags:
+  - name: rate-service-controller
+    description: Rate Service Controller
 paths:
-  $END$
+  /exchange:
+    post:
+      tags:
+        - rate-service-controller
+      summary: Find the best exchange rates
+      operationId: findTheBestRateUsingPOST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestExchangeDTO'
+      responses:
+        '200':
+          description: Exchange rates successfully retrieved
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResponseExchangeDTO'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Failed to fetch rates
+components:
+  schemas:
+    RequestExchangeDTO:
+      title: RequestExchangeDTO
+      type: object
+      properties:
+        amount:
+          type: number
+          format: double
+        fromCurrencyCode:
+          type: string
+    ResponseExchangeDTO:
+      title: ResponseExchangeDTO
+      type: object
+      properties:
+        Country:
+          type: string
+        amount:
+          type: number
+          format: double
+        currencyCode:
+          type: string
+        exchangePath:
+          type: string
+        exchangeRate:
+          type: number
+          format: double

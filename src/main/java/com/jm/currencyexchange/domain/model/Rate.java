@@ -1,4 +1,5 @@
-package com.jm.currencyexchange.model;
+package com.jm.currencyexchange.domain.model;
 
-public record Rate(String from, String to, double amount) {
+public record Rate(String fromCurrencyCode, String fromCurrencyName, String toCurrencyCode, String toCurrencyName,
+                   double exchangeRate) {
 }

@@ -1,5 +1,5 @@
 package com.jm.currencyexchange.controller.dto;
 
-public record RequestRateDTO(String fromCurrencyCode, String toCurrencyCode) {
+public record RequestExchangeDTO(String fromCurrencyCode, double amount) {
 
 }
