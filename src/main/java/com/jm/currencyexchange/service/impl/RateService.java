@@ -51,7 +51,7 @@ public class RateService implements IRateService {
         log.info("Fetching rates");
 
         var ratesResponse = restTemplate
-                .getForEntity("https://api-coding-challenge.neofinancial.com/currency-conversion?seed={id}", Rate[].class, 59518);
+                .getForEntity("https://api-coding-challenge.neofinancial.com/currency-conversion?seed={id}", Rate[].class, 49642);
 
         if (ratesResponse.getStatusCode().is2xxSuccessful() && ratesResponse.hasBody()) {
             log.info("done");
