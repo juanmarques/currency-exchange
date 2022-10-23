@@ -6,6 +6,8 @@ import com.jm.currencyexchange.controller.exception.InternalServerError;
 import com.jm.currencyexchange.domain.model.Edge;
 import com.jm.currencyexchange.domain.model.Rate;
 import com.jm.currencyexchange.service.IRateService;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Cell;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -213,32 +217,24 @@ public class RateService implements IRateService {
      */
     @Override
     public void generateExcel(List<ResponseExchangeDTO> responseExchangeDTOList, String fromCurrencyCode) {
+        String[] headers = {"Currency Code", "Country", "Amount of currency", "Exchange Path", "Exchange Rate"};
 
-        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
-            // create a blank sheet
-            XSSFSheet sheet = workbook.createSheet("Rates");
-
-            //Create header columns
-            String[] headers = new String[]{"Currency Code", "Country", "Amount of currency", "Exchange Path", "Exchange Rate"};
-            Row header = sheet.createRow(0);
-            for (int rn = 0; rn < headers.length; rn++) {
-                header.createCell(rn).setCellValue(headers[rn]);
+        try {
+            FileWriter out = new FileWriter("best_rates_for_" + fromCurrencyCode + ".csv");
+            try (CSVPrinter printer = new CSVPrinter(out, CSVFormat.DEFAULT
+                    .withHeader(headers))) {
+                responseExchangeDTOList.forEach(item -> {
+                    try {
+                        printer.printRecord(item.currencyCode(), item.Country(), item.amount(), item.exchangePath(), item.exchangeRate());
+                    } catch (IOException iox) {
+                        log.error("Failed to export excel data", iox);
+                    }
+                });
             }
-
-            // Populate with data
-            AtomicInteger rowNum = new AtomicInteger(1);
-            responseExchangeDTOList.forEach(item -> {
-                Row row = sheet.createRow(rowNum.getAndIncrement());
-                populateExcelFileRows(item, row);
-            });
-
-            //Create output file
-            FileOutputStream out = new FileOutputStream("best-rates-for-" + fromCurrencyCode + ".xlsx");
-            workbook.write(out);
-            out.close();
-        } catch (Exception wexc) {
-            log.error("Failed to export data to excel");
+        } catch (IOException iox) {
+            log.error("Failed to create excel file", iox);
         }
+
     }
 
     /**
